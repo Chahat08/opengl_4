@@ -23,14 +23,24 @@ void framebuffer_resize_callback(GLFWwindow* window, int width, int height) {
 	glViewport(0, 0, width, height);
 }
 
+void processInput(GLFWwindow* window) {
+	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+		glfwSetWindowShouldClose(window, GL_TRUE);
+	}
+}
+
 int main() {
 	if (!glfwInit()) std::cerr << "Failed to initialise GLFW" << std::endl;
 	
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	glfwWindowHint(GLFW_DECORATED, NULL);
 
-	GLFWwindow* window = glfwCreateWindow(800, 600, "OpenGL Window", NULL, NULL);
+	GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+	const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+
+	GLFWwindow* window = glfwCreateWindow(mode->width, mode->height, "OpenGL Window", monitor, NULL);
 	if (window == NULL) {
 		std::cerr << "Failed to create GLFW window" << std::endl;
 		glfwTerminate();
@@ -110,9 +120,11 @@ int main() {
 	
 	// render loop
 	while (!glfwWindowShouldClose(window)) {
+		processInput(window);
+
 		glUseProgram(shaderProgram);
 		glBindVertexArray(VAO);
-		glDrawArrays(GL_LINES, 0, 3);
+		glDrawArrays(GL_TRIANGLES, 0, 3);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
